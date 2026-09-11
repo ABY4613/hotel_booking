@@ -3,6 +3,7 @@ import '../controllers/booking_controller.dart';
 import '../models/room_model.dart';
 import '../utils/app_colors.dart';
 import '../utils/date_helper.dart';
+import '../widgets/raintech_header.dart';
 import '../widgets/step_card_container.dart';
 import '../widgets/room_badge_widget.dart';
 import '../widgets/custom_button.dart';
@@ -13,8 +14,9 @@ import '../widgets/bookings_table_widget.dart';
 
 class HotelBookingScreen extends StatefulWidget {
   final BookingController controller;
+  final VoidCallback onBack;
 
-  const HotelBookingScreen({super.key, required this.controller});
+  const HotelBookingScreen({super.key, required this.controller, required this.onBack});
 
   @override
   State<HotelBookingScreen> createState() => _HotelBookingScreenState();
@@ -64,71 +66,84 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
         final calc = ctrl.calculation;
         final selectedRoom = ctrl.selectedRoom;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Feedback Banners (Error, Warning, Success)
-              if (ctrl.validationErrorMessage != null)
-                StatusBannerWidget(
-                  message: ctrl.validationErrorMessage!,
-                  type: calc.isRoomConflict ? StatusBannerType.warning : StatusBannerType.error,
-                  onDismiss: () => ctrl.clearMessages(),
+        return Column(
+          children: [
+            // Page Header with Back button
+            PageHeader(
+              title: 'Guest Check-in',
+              onBack: widget.onBack,
+              onSearchChanged: (query) => ctrl.setSearchQuery(query),
+            ),
+            // Scrollable Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Feedback Banners (Error, Warning, Success)
+                    if (ctrl.validationErrorMessage != null)
+                      StatusBannerWidget(
+                        message: ctrl.validationErrorMessage!,
+                        type: calc.isRoomConflict ? StatusBannerType.warning : StatusBannerType.error,
+                        onDismiss: () => ctrl.clearMessages(),
+                      ),
+
+                    if (ctrl.successMessage != null)
+                      StatusBannerWidget(
+                        message: ctrl.successMessage!,
+                        type: StatusBannerType.success,
+                        onDismiss: () => ctrl.clearMessages(),
+                      ),
+
+                    // Main 3-Column Top Grid (Matching Image 1)
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isDesktop = constraints.maxWidth > 950;
+                        if (isDesktop) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Card 1: Select Booking & Guest
+                              Expanded(flex: 3, child: _buildStep1Card(ctrl)),
+                              const SizedBox(width: 14.0),
+                              // Card 2: Review & Update Details
+                              Expanded(flex: 5, child: _buildStep2Card(ctrl, selectedRoom, calc)),
+                              const SizedBox(width: 14.0),
+                              // Card 3: Finalize Check-in & Payment
+                              Expanded(flex: 3, child: _buildStep3Card(ctrl, selectedRoom, calc)),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            children: [
+                              _buildStep1Card(ctrl),
+                              const SizedBox(height: 14.0),
+                              _buildStep2Card(ctrl, selectedRoom, calc),
+                              const SizedBox(height: 14.0),
+                              _buildStep3Card(ctrl, selectedRoom, calc),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // Bottom Section: Confirmed Guests Ledger Table (Matching Image 1)
+                    BookingsTableWidget(
+                      bookings: ctrl.bookings,
+                      onDelete: (id) => ctrl.deleteBooking(id),
+                      onSelect: (b) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Viewing reservation ${b.id} for ${b.guestName}')),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-
-              if (ctrl.successMessage != null)
-                StatusBannerWidget(
-                  message: ctrl.successMessage!,
-                  type: StatusBannerType.success,
-                  onDismiss: () => ctrl.clearMessages(),
-                ),
-
-              // Main 3-Column Top Grid (Matching Image 1)
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isDesktop = constraints.maxWidth > 950;
-                  if (isDesktop) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Card 1: Select Booking & Guest
-                        Expanded(flex: 3, child: _buildStep1Card(ctrl)),
-                        const SizedBox(width: 14.0),
-                        // Card 2: Review & Update Details
-                        Expanded(flex: 5, child: _buildStep2Card(ctrl, selectedRoom, calc)),
-                        const SizedBox(width: 14.0),
-                        // Card 3: Finalize Check-in & Payment
-                        Expanded(flex: 3, child: _buildStep3Card(ctrl, selectedRoom, calc)),
-                      ],
-                    );
-                  } else {
-                    return Column(
-                      children: [
-                        _buildStep1Card(ctrl),
-                        const SizedBox(height: 14.0),
-                        _buildStep2Card(ctrl, selectedRoom, calc),
-                        const SizedBox(height: 14.0),
-                        _buildStep3Card(ctrl, selectedRoom, calc),
-                      ],
-                    );
-                  }
-                },
               ),
-              const SizedBox(height: 16.0),
-
-              // Bottom Section: Confirmed Guests Ledger Table (Matching Image 1)
-              BookingsTableWidget(
-                bookings: ctrl.bookings,
-                onDelete: (id) => ctrl.deleteBooking(id),
-                onSelect: (b) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Viewing reservation ${b.id} for ${b.guestName}')),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -161,7 +176,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                     onChanged: (val) => ctrl.setSearchQuery(val),
                     style: const TextStyle(fontSize: 12.0),
                     decoration: const InputDecoration(
-                      hintText: 'Search Booking ID / Room / Guest',
+                      hintText: 'Search Booking ID / Guest Name',
                       hintStyle: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                       border: InputBorder.none,
                       isDense: true,
@@ -217,136 +232,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
             ],
           ),
           const SizedBox(height: 12.0),
-
-          // Filter by Max Guests (Bonus Requirement)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Filter Capacity:',
-                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-              ),
-              Wrap(
-                spacing: 4.0,
-                children: [0, 2, 3, 4].map((capacity) {
-                  final isSelected = ctrl.guestCapacityFilter == capacity;
-                  return ChoiceChip(
-                    label: Text(capacity == 0 ? 'All' : '$capacity+'),
-                    selected: isSelected,
-                    selectedColor: AppColors.navyPrimary,
-                    labelStyle: TextStyle(
-                      fontSize: 11.0,
-                      fontWeight: FontWeight.w700,
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                    ),
-                    backgroundColor: AppColors.inputBackground,
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    onSelected: (selected) {
-                      if (selected) ctrl.setGuestCapacityFilter(capacity);
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8.0),
-
-          // Core Sample Rooms List
-          const Text(
-            'Select Hotel Room:',
-            style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 6.0),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 180.0),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: ctrl.filteredRooms.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 6.0),
-              itemBuilder: (context, index) {
-                final room = ctrl.filteredRooms[index];
-                final isSelected = ctrl.selectedRoom?.roomCode == room.roomCode;
-                final isAvail = ctrl.isRoomAvailableForDates(room);
-
-                return InkWell(
-                  onTap: () => ctrl.selectRoom(room),
-                  borderRadius: BorderRadius.circular(6.0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFEFF5FA) : Colors.white,
-                      borderRadius: BorderRadius.circular(6.0),
-                      border: Border.all(
-                        color: isSelected ? AppColors.navyPrimary : AppColors.borderLight,
-                        width: isSelected ? 1.8 : 1.0,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppColors.navyPrimary : AppColors.buttonBeige,
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                              child: Text(
-                                room.roomCode,
-                                style: TextStyle(
-                                  fontSize: 11.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected ? Colors.white : AppColors.buttonBeigeText,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8.0),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  room.roomType,
-                                  style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700),
-                                ),
-                                Text(
-                                  'Max ${room.maxGuests} Guests • ${room.bedCount} Bed',
-                                  style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              DateHelper.formatCurrency(room.pricePerNight, includeDecimals: false),
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.navyPrimary,
-                              ),
-                            ),
-                            Text(
-                              isAvail ? 'Available' : 'Booked',
-                              style: TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.w700,
-                                color: isAvail ? AppColors.successText : AppColors.errorText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          const Divider(height: 18.0, color: AppColors.borderSubtle),
 
           // Booking Date & Booking Time (Matching Image 1 bottom row of card 1)
           Row(
@@ -430,9 +315,9 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('GST %', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const Text('GST', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
                     const SizedBox(height: 4.0),
-                    _buildStaticInput(room != null ? '${room.gstPercentage.toStringAsFixed(0)}%' : '12%'),
+                    _buildStaticInput(room != null ? room.gstPercentage.toStringAsFixed(0) : '12'),
                   ],
                 ),
               ),
@@ -454,11 +339,11 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
               ),
               // No-of Adults
               SizedBox(
-                width: 70.0,
+                width: 75.0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Adults', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const Text('No-of Adults', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
                     const SizedBox(height: 4.0),
                     _buildCountDropdown(
                       value: ctrl.adultsCount,
@@ -474,7 +359,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Kids', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const Text('No-of Kids', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
                     const SizedBox(height: 4.0),
                     _buildCountDropdown(
                       value: ctrl.kidsCount,
@@ -488,35 +373,19 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
           ),
           const SizedBox(height: 14.0),
 
-          // Date Selection Section: Check-in Date & Check-out Date Pickers (Core Requirement)
+          // Date Selection Section: Checkout Date + Update ID Proof + Update No. of Adults/Kids
           Row(
             children: [
               Expanded(
                 child: CustomDatePickerField(
-                  label: 'Check-in Date',
-                  selectedDate: ctrl.checkInDate,
-                  onDateSelected: (d) => ctrl.setCheckInDate(d),
-                  helpText: 'Select Check-in Date (Today or future)',
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: CustomDatePickerField(
-                  label: 'Check-out Date',
+                  label: 'Checkout Date',
                   selectedDate: ctrl.checkOutDate,
                   onDateSelected: (d) => ctrl.setCheckOutDate(d),
                   firstDate: ctrl.checkInDate?.add(const Duration(days: 1)),
                   helpText: 'Select Check-out Date (Must be after Check-in)',
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12.0),
-
-          // Middle Row: Update ID Proof, Update Guest Name, Guest Count
-          Row(
-            children: [
-              // Update ID Proof
+              const SizedBox(width: 10.0),
               Expanded(
                 flex: 2,
                 child: Column(
@@ -549,19 +418,17 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8.0),
-
-              // Update Guest Name
+              const SizedBox(width: 10.0),
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Update Guest Name', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const Text('Update No. of Adults/Kids', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
                     const SizedBox(height: 4.0),
                     _buildTextInput(
-                      controller: _guestNameController,
-                      hint: 'Full Guest Name',
+                      controller: _tenantNameController,
+                      hint: 'Mathew Hade',
                       onChanged: (val) => _syncGuestDetails(),
                     ),
                   ],
@@ -571,7 +438,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
           ),
           const SizedBox(height: 12.0),
 
-          // Upload Box & Additional Charges Info
+          // Upload Box + Guest Count + Update Guest Name row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -598,7 +465,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                         Icon(Icons.upload_file, size: 18.0, color: AppColors.navyPrimary),
                         SizedBox(width: 6.0),
                         Text(
-                          'Upload ID',
+                          'Upload',
                           style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600, color: AppColors.navyPrimary),
                         ),
                       ],
@@ -606,52 +473,99 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12.0),
+              const SizedBox(width: 10.0),
 
-              // Additional Charges / Live Calculation Snippet
+              // Guest Count dropdown
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Guest Count', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const SizedBox(height: 4.0),
+                    _buildCountDropdown(
+                      value: ctrl.totalGuests > 0 ? ctrl.totalGuests : 2,
+                      items: [1, 2, 3, 4, 5, 6],
+                      onChanged: (v) {},
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10.0),
+
+              // Update Guest Name
               Expanded(
                 flex: 3,
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9F7F2),
-                    borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(color: AppColors.borderLight),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Duration:', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-                          Text(
-                            '${calc.nights} Night${calc.nights > 1 ? "s" : ""}',
-                            style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.navyPrimary),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Room Charge:', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-                          Text(
-                            DateHelper.formatCurrency(calc.baseAmount),
-                            style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Update Guest Name', style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                    const SizedBox(height: 4.0),
+                    _buildTextInput(
+                      controller: _guestNameController,
+                      hint: 'Full Guest Name',
+                      onChanged: (val) => _syncGuestDetails(),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 12.0),
+
+          // Additional Charges info snippet
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9F7F2),
+              borderRadius: BorderRadius.circular(6.0),
+              border: Border.all(color: AppColors.borderLight),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Additional Charges', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                const SizedBox(height: 4.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Room Charge', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                    Text(
+                      '${calc.nights} bed${calc.nights > 1 ? "s" : ""}',
+                      style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Extra Charges', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                    Text(
+                      DateHelper.formatCurrency(calc.extraCharges),
+                      style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Tax', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                    Text(
+                      DateHelper.formatCurrency(calc.gstAmount),
+                      style: const TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 14.0),
 
           // Action Buttons: Delete, Edit, Update, Confirm Guest Details (Matching Image 1)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            spacing: 6.0,
+            runSpacing: 6.0,
+            alignment: WrapAlignment.end,
             children: [
               CustomButton(
                 label: 'Delete',
@@ -665,7 +579,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                   _syncGuestDetails();
                 },
               ),
-              const SizedBox(width: 6.0),
               CustomButton(
                 label: 'Edit',
                 icon: Icons.edit_outlined,
@@ -674,7 +587,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                 fontSize: 12.0,
                 onPressed: () {},
               ),
-              const SizedBox(width: 6.0),
               CustomButton(
                 label: 'Update',
                 icon: Icons.refresh,
@@ -688,7 +600,6 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
                   );
                 },
               ),
-              const SizedBox(width: 6.0),
               CustomButton(
                 label: 'Confirm Guest Details',
                 variant: ButtonVariant.primaryNavy,
@@ -778,7 +689,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int>(
-          value: value,
+          value: items.contains(value) ? value : items.first,
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down, size: 18.0),
           style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),

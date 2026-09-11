@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'controllers/booking_controller.dart';
 import 'utils/app_colors.dart';
-import 'widgets/raintech_header.dart';
 import 'views/hotel_booking_screen.dart';
-import 'views/floor_map_view.dart';
+import 'views/floor_map_view.dart' hide AppColors, RoomStatus, RoomStatusStyle;
 import 'views/checkout_view.dart';
 
 void main() {
@@ -58,6 +57,9 @@ class HotelBookingApp extends StatelessWidget {
   }
 }
 
+/// Enum for app pages — no tabs, full page navigation
+enum AppPage { dashboard, checkin, checkout }
+
 class MainHotelShell extends StatefulWidget {
   const MainHotelShell({super.key});
 
@@ -67,6 +69,7 @@ class MainHotelShell extends StatefulWidget {
 
 class _MainHotelShellState extends State<MainHotelShell> {
   late final BookingController _controller;
+  AppPage _currentPage = AppPage.dashboard;
 
   @override
   void initState() {
@@ -80,38 +83,38 @@ class _MainHotelShellState extends State<MainHotelShell> {
     super.dispose();
   }
 
+  void _navigateTo(AppPage page) {
+    setState(() => _currentPage = page);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _controller,
-      builder: (context, _) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // Top Header Bar
-                RaintechHeader(
-                  activeTab: _controller.activeNavIndex,
-                  onTabChanged: (index) => _controller.setActiveNavIndex(index),
-                  onSearchChanged: (query) => _controller.setSearchQuery(query),
-                ),
-                // Active View Body
-                Expanded(
-                  child: IndexedStack(
-                    index: _controller.activeNavIndex,
-                    children: [
-                      HotelBookingScreen(controller: _controller),
-                      FloorMapView(controller: _controller),
-                      CheckoutView(controller: _controller),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: _buildCurrentPage(),
+      ),
     );
+  }
+
+  Widget _buildCurrentPage() {
+    switch (_currentPage) {
+      case AppPage.dashboard:
+        return FloorMapView(
+          controller: _controller,
+          onNavigateToCheckin: () => _navigateTo(AppPage.checkin),
+          onNavigateToCheckout: () => _navigateTo(AppPage.checkout),
+        );
+      case AppPage.checkin:
+        return HotelBookingScreen(
+          controller: _controller,
+          onBack: () => _navigateTo(AppPage.dashboard),
+        );
+      case AppPage.checkout:
+        return CheckoutView(
+          controller: _controller,
+          onBack: () => _navigateTo(AppPage.dashboard),
+        );
+    }
   }
 }

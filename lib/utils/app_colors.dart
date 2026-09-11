@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Brand & Navigation
-  static const Color navyPrimary = Color(0xFF0F3B5F);
-  static const Color navyDark = Color(0xFF0A2B47);
-  static const Color navyAccent = Color(0xFF1976D2);
-  static const Color navyCardHeader = Color(0xFF0F3B5F);
+  static const Color navyPrimary = Color(0xFF1E3A5F);
+  static const Color navyDark = Color(0xFF0F2642);
+  static const Color navyAccent = Color(0xFF2A52BE);
+  static const Color navyCardHeader = Color(0xFF1E3A5F);
   
   // Backgrounds
-  static const Color background = Color(0xFFF4F1EA);
+  static const Color background = Color(0xFFF5F3ED);       // Warm cream background matching screenshot
   static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color inputBackground = Color(0xFFFBFBF9);
   static const Color tableRowAlt = Color(0xFFFAF8F5);
   static const Color tableBorder = Color(0xFFE5DFC9);
   
   // Neutral & Text
-  static const Color textPrimary = Color(0xFF1E293B);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textMuted = Color(0xFF94A3B8);
-  static const Color borderLight = Color(0xFFD8D2C2);
+  static const Color textPrimary = Color(0xFF1A1A1A);
+  static const Color textSecondary = Color(0xFF5A6065);
+  static const Color textMuted = Color(0xFF8C9296);
+  static const Color borderLight = Color(0xFFE5E0D8);
   static const Color borderSubtle = Color(0xFFEAE5D9);
   
   // Buttons & Badges (Beige/Tan/Brass)
-  static const Color buttonBeige = Color(0xFFEBE4D5);
-  static const Color buttonBeigeHover = Color(0xFFDFD7C4);
-  static const Color buttonBeigeBorder = Color(0xFFC7BCAB);
+  static const Color buttonBeige = Color(0xFFF6ECE3);
+  static const Color buttonBeigeHover = Color(0xFFEBE0D5);
+  static const Color buttonBeigeBorder = Color(0xFFE2D6C8);
   static const Color buttonBeigeText = Color(0xFF2C2416);
   
   // Metallic Brass / Gold Room Badge
@@ -33,17 +33,17 @@ class AppColors {
   static const Color goldBadgeBorder = Color(0xFF947230);
   static const Color goldBadgeText = Color(0xFF261902);
   
-  // Status Colors (Matching Room Status Floor Map)
-  static const Color statusAvailable = Color(0xFF4CAF50); // Green
-  static const Color statusOccupied = Color(0xFF1E88E5);  // Blue
-  static const Color statusDirty = Color(0xFFE53935);     // Red
-  static const Color statusMaintenance = Color(0xFFFB8C00); // Orange
-  static const Color statusBlocked = Color(0xFF78909C);   // Gray
+  // Status Colors (Exact match for screenshot floor map)
+  static const Color statusAvailable = Color(0xFF8CAF8C);     // Sage green
+  static const Color statusOccupied = Color(0xFF3F64A8);      // Muted blue
+  static const Color statusDirty = Color(0xFFD9534F);         // Crimson red
+  static const Color statusMaintenance = Color(0xFFF09236);   // Warm orange
+  static const Color statusBlocked = Color(0xFF9E9E9E);       // Slate gray
   
   // Alert & Feedback
-  static const Color successBg = Color(0xFFE8F5E9);
-  static const Color successBorder = Color(0xFFA5D6A7);
-  static const Color successText = Color(0xFF2E7D32);
+  static const Color successBg = Color(0xFFA3CFA3);           // Muted green button background in screenshot
+  static const Color successBorder = Color(0xFF8CBF8C);
+  static const Color successText = Color(0xFF1B431B);
   
   static const Color warningBg = Color(0xFFFFF3E0);
   static const Color warningBorder = Color(0xFFFFCC80);
@@ -57,3 +57,4 @@ class AppColors {
   static const Color infoBorder = Color(0xFF90CAF9);
   static const Color infoText = Color(0xFF1565C0);
 }
+

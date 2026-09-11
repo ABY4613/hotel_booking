@@ -68,59 +68,67 @@ class MockDataService {
     ];
   }
 
-  /// Full property room list for interactive Floor View (matching PMS dashboard Image 2)
+  /// Full property room list for interactive Floor View (matching PMS dashboard screenshot)
+  /// Generates 200 total rooms: 100 on Floor 1, 100 on Floor 2
   static List<Room> getAllPropertyRooms() {
-    final core = getCoreSampleRooms();
-    final List<Room> all = List.from(core);
+    final List<Room> all = [];
 
-    // Add remaining rooms for Floor 1 (103 to 116)
-    for (int i = 103; i <= 116; i++) {
+    // Floor 1: rooms 101-200 (100 rooms)
+    for (int i = 101; i <= 200; i++) {
       final code = 'R$i';
       RoomStatus status;
-      if (i % 5 == 0) {
-        status = RoomStatus.dirty;
-      } else if (i % 7 == 0) {
+      if (i == 102 || i == 103 || i == 104 || i == 105 || i == 106 || i == 107) {
         status = RoomStatus.occupied;
-      } else if (i == 107 || i == 112) {
+      } else if (i == 104 || i == 105 || i == 109 || i == 190) {
+        status = RoomStatus.dirty;
+      } else if (i == 112 || i == 116) {
         status = RoomStatus.maintenance;
+      } else if (i % 17 == 0) {
+        status = RoomStatus.blocked;
+      } else if (i % 11 == 0) {
+        status = RoomStatus.occupied;
       } else {
         status = RoomStatus.available;
       }
 
       all.add(Room(
         roomCode: code,
-        roomType: i > 110 ? 'Executive Suite' : 'Deluxe Room',
-        pricePerNight: i > 110 ? 5800.0 : 3500.0,
-        maxGuests: i > 110 ? 3 : 2,
+        roomType: i > 150 ? 'Executive Suite' : 'Deluxe Room',
+        pricePerNight: i > 150 ? 5800.0 : 3500.0,
+        maxGuests: i > 150 ? 3 : 2,
         floor: 1,
         status: status,
-        bedCount: i > 110 ? 2 : 1,
+        bedCount: i > 150 ? 2 : 1,
         gstPercentage: 12.0,
       ));
     }
 
-    // Add rooms for Floor 2 (203 to 216)
-    for (int i = 203; i <= 216; i++) {
+    // Floor 2: rooms 201-300 (100 rooms)
+    for (int i = 201; i <= 300; i++) {
       final code = 'R$i';
       RoomStatus status;
-      if (i % 6 == 0) {
-        status = RoomStatus.occupied;
-      } else if (i % 4 == 0) {
-        status = RoomStatus.blocked;
-      } else if (i == 205 || i == 206) {
+      if (i == 202 || i == 205 || i == 210) {
         status = RoomStatus.dirty;
+      } else if (i == 203 || i == 204 || i == 206) {
+        status = RoomStatus.occupied;
+      } else if (i == 207 || i == 208) {
+        status = RoomStatus.maintenance;
+      } else if (i % 19 == 0) {
+        status = RoomStatus.blocked;
+      } else if (i % 13 == 0) {
+        status = RoomStatus.occupied;
       } else {
         status = RoomStatus.available;
       }
 
       all.add(Room(
         roomCode: code,
-        roomType: i > 210 ? 'Family Room' : 'Executive Suite',
-        pricePerNight: i > 210 ? 4200.0 : 5800.0,
-        maxGuests: i > 210 ? 4 : 3,
+        roomType: i > 250 ? 'Family Room' : 'Executive Suite',
+        pricePerNight: i > 250 ? 4200.0 : 5800.0,
+        maxGuests: i > 250 ? 4 : 3,
         floor: 2,
         status: status,
-        bedCount: i > 210 ? 3 : 2,
+        bedCount: i > 250 ? 3 : 2,
         gstPercentage: 18.0,
       ));
     }
