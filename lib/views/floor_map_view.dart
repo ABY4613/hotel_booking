@@ -236,7 +236,7 @@ class _FloorMapViewState extends State<FloorMapView> {
       _ActionItemData('Guest Check-in', Icons.assignment_turned_in_outlined, Color(0xFFDFF6E5), Color(0xFF1E9E4D)),
       _ActionItemData('Guest Check-Out', Icons.logout_outlined, Color(0xFFFCE1E1), Color(0xFFDB4444)),
       _ActionItemData('Reservations', Icons.calendar_month_outlined, Color(0xFFE1EEFC), Color(0xFF2857E0)),
-      _ActionItemData('Housekeeping', Icons.cleaning_services_outlined, Color(0xFFFCEEDD), Color(0xFFE08A2A)),
+      _ActionItemData('Housekeeping', Icons.sanitizer_outlined, Color(0xFFD9F4F6), Color(0xFF00ACC1)),
       _ActionItemData('Restaurant', Icons.restaurant_outlined, Color(0xFFFCE7DC), Color(0xFFE05B2A)),
       _ActionItemData('WhatsApp', Icons.chat_outlined, Color(0xFFDDF5E5), Color(0xFF25A854)),
       _ActionItemData('Rooms', Icons.meeting_room_outlined, Color(0xFFF1E6FB), Color(0xFF8C4FDB)),
@@ -575,8 +575,8 @@ class _FloorMapViewState extends State<FloorMapView> {
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.textDark,
-                    backgroundColor: const Color(0xFFE5E7EF),
-                    side: BorderSide.none,
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: AppColors.border),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -601,7 +601,7 @@ class TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
@@ -618,31 +618,40 @@ class TopBar extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Container(
-            width: 34,
-            height: 34,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle, 
-              image: DecorationImage(image: NetworkImage('https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=80&q=80'), fit: BoxFit.cover),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              children: [
+                const CircleAvatar(
+                  radius: 12, 
+                  backgroundImage: NetworkImage('https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=80&q=80'),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text('Raintech', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textDark)),
+                    Text('HOTEL', style: TextStyle(fontSize: 9, color: AppColors.textGrey, letterSpacing: 1)),
+                  ],
+                ),
+                const SizedBox(width: 6),
+                const Icon(Icons.unfold_more, size: 16, color: AppColors.textGrey),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('Raintech', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-              Text('HOTEL', style: TextStyle(fontSize: 10, color: AppColors.textGrey, letterSpacing: 1)),
-            ],
-          ),
-          const SizedBox(width: 6),
-          const Icon(Icons.unfold_more, size: 16, color: AppColors.textGrey),
           const SizedBox(width: 24),
           Expanded(
             child: Container(
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
               ),
               child: Row(
                 children: const [
@@ -661,8 +670,9 @@ class TopBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
               children: const [
@@ -946,7 +956,7 @@ class VacateRoomTile extends StatelessWidget {
       child: Row(
         children: [
             Container(
-              width: 56,
+              width: 80,
               height: 56,
               decoration: BoxDecoration(
                 color: const Color(0xFFE7C9A6),
@@ -996,10 +1006,10 @@ class DepartingSummaryTile extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4F7EA),
+                  color: const Color(0xFFEAF1FE),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(Icons.login, size: 14, color: Color(0xFF1E9E4D)),
+                child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.primaryBlue),
               ),
               const Text('0%', style: TextStyle(fontSize: 11, color: AppColors.textGrey)),
             ],
