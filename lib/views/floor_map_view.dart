@@ -348,7 +348,7 @@ class _FloorMapViewState extends State<FloorMapView> {
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.textDark)),
           const SizedBox(height: 2),
           const Text('50 rooms across your property',
-              style: TextStyle(fontSize: 13, color: AppColors.textGrey)),
+              style: TextStyle(fontSize: 13, color: AppColors.textDark)),
           const SizedBox(height: 16),
           LayoutBuilder(builder: (context, constraints) {
             final isWide = constraints.maxWidth > 950;
@@ -360,17 +360,37 @@ class _FloorMapViewState extends State<FloorMapView> {
                 FloorRow(label: 'Floor 2', rows: floor2Wide, onTap: _onRoomTap),
               ],
             );
+
+            final legendWrap = Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: const [
+                LegendDot(color: Color(0xFF9CC8A8), label: 'Available'),
+                LegendDot(color: Color(0xFF4C75CB), label: 'Occupied'),
+                LegendDot(color: Color(0xFFD3554A), label: 'Dirty'),
+                LegendDot(color: Color(0xFFE99645), label: 'Maintenance'),
+                LegendDot(color: Color(0xFF9B9B9B), label: 'Blocked'),
+              ],
+            );
+
+            final helperText = const Text('Clicking a room tile opens its quick-edit menu', style: TextStyle(fontSize: 10.5, color: AppColors.textDark));
+
             final right = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FloorRow(label: 'Floor 1', rows: floor1Mini, onTap: _onRoomTap),
                 const SizedBox(height: 10),
                 FloorRow(label: 'Floor 2', rows: floor2Mini, onTap: _onRoomTap),
+                const SizedBox(height: 16),
+                legendWrap,
+                const SizedBox(height: 6),
+                helperText,
               ],
             );
+
             final summary = Container(
-              width: 170,
-              padding: const EdgeInsets.all(16),
+              width: 130,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
               alignment: Alignment.center,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -379,8 +399,8 @@ class _FloorMapViewState extends State<FloorMapView> {
                     alignment: Alignment.center,
                     children: const [
                       SizedBox(
-                        width: 110,
-                        height: 110,
+                        width: 100,
+                        height: 100,
                         child: CircularProgressIndicator(
                           value: 0.04,
                           strokeWidth: 8,
@@ -391,15 +411,15 @@ class _FloorMapViewState extends State<FloorMapView> {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('200', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-                          Text('Rooms', style: TextStyle(fontSize: 12, color: AppColors.textGrey)),
-                          Text('Total', style: TextStyle(fontSize: 12, color: AppColors.textGrey)),
+                          Text('200', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.textDark, height: 1.1)),
+                          Text('Rooms', style: TextStyle(fontSize: 11, color: AppColors.textDark, fontWeight: FontWeight.w600, height: 1.1)),
+                          Text('Total', style: TextStyle(fontSize: 11, color: AppColors.textDark, fontWeight: FontWeight.w600, height: 1.1)),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text('4% Occupied', style: TextStyle(fontSize: 13, color: AppColors.textGrey)),
+                  const SizedBox(height: 16),
+                  const Text('4% Occupied', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textDark)),
                 ],
               ),
             );
@@ -408,30 +428,15 @@ class _FloorMapViewState extends State<FloorMapView> {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 5, child: left),
-                  const SizedBox(width: 18),
-                  Expanded(flex: 3, child: right),
+                  Expanded(flex: 17, child: left),
+                  const SizedBox(width: 16),
+                  Expanded(flex: 7, child: right),
                   summary,
                 ],
               );
             }
-            return Column(children: [left, const SizedBox(height: 16), right, const SizedBox(height: 8), summary]);
+            return Column(children: [left, const SizedBox(height: 16), right, const SizedBox(height: 16), summary]);
           }),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 18,
-            runSpacing: 6,
-            children: const [
-              LegendDot(color: Color(0xFF9CC8A8), label: 'Available'),
-              LegendDot(color: Color(0xFF4C75CB), label: 'Occupied'),
-              LegendDot(color: Color(0xFFD3554A), label: 'Dirty'),
-              LegendDot(color: Color(0xFFE99645), label: 'Maintenance'),
-              LegendDot(color: Color(0xFF9B9B9B), label: 'Blocked'),
-            ],
-          ),
-          const SizedBox(height: 6),
-          const Text('Clicking a room tile opens its quick-edit menu',
-              style: TextStyle(fontSize: 12, color: AppColors.textGrey)),
         ],
       ),
     );
@@ -858,26 +863,35 @@ class FloorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         RotatedBox(
           quarterTurns: 3,
           child: Text(label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textGrey)),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textDark)),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            children: rows
-                .map((row) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: row.map((room) => RoomTile(room: room, onTap: () => onTap(room))).toList(),
-                      ),
-                    ))
-                .toList(),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(rows.length, (i) {
+                final row = rows[i];
+                return Padding(
+                  padding: EdgeInsets.only(bottom: i == rows.length - 1 ? 0 : 4),
+                  child: Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: row.map((room) => RoomTile(room: room, onTap: () => onTap(room))).toList(),
+                  ),
+                );
+              }),
+            ),
           ),
         ),
       ],
@@ -895,19 +909,18 @@ class RoomTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(4),
       child: Container(
-        width: 32,
-        height: 26,
+        width: 30,
+        height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: room.status.bg,
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.black.withOpacity(0.05)),
         ),
         child: Text(
           room.number,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: room.status.fg),
+          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: room.status.fg),
         ),
       ),
     );
@@ -927,9 +940,9 @@ class LegendDot extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 6),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textGrey)),
+        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textDark)),
       ],
     );
   }
